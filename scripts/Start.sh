@@ -11,7 +11,7 @@ sleep 10s
 # start bebop autonomy
 source /opt/ros/kinetic/setup.bash
 source ~/catkin_ws/devel/setup.bash
-gnome-terminal --tab "bebop_autonomy" -x bash -c "roslaunch bebop_driver bebop_node.launch;exec bash;"
+gnome-terminal --tab "bebop_autonomy" -x bash -c "roslaunch bebop_driver bebop_node.launch namespace:=\"bebop2\" drone_type:=\"bebop2\";exec bash;"
 sleep 1s
 
 # start data logger

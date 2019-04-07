@@ -6,6 +6,7 @@
 #include <gazebo/transport/transport.hh>
 #include <gazebo/msgs/poses_stamped.pb.h>
 #include "nav_msgs/Odometry.h"
+#include "std_msgs/Bool.h"
 
 #include <string>
 #include <sstream>
@@ -18,17 +19,48 @@ class data_logger
 {
 	public:
 		gazebo::transport::SubscriberPtr odom_gazebo_sub;
+		ros::Subscriber reset_sub;
+		gazebo::transport::PublisherPtr reset_pub;
 		ros::Publisher odom_pub;
+
 		bool isInited = false;
 		nav_msgs::Odometry odom_temp;
 
 	data_logger(){}
 	void read_pose(ConstPosesStampedPtr &msg);
+	void reset(const std_msgs::Bool& msg);
 };
 
-// Reading Follower pose from Gazebo
-void data_logger::read_pose(ConstPosesStampedPtr &msg){
+void data_logger::reset(const std_msgs::Bool& msg)
+{
+	if(msg.data)
+	{
+		gazebo::msgs::Model msg_model;
+		gazebo::msgs::Pose *msg_pose = new gazebo::msgs::Pose();
+		gazebo::msgs::Quaternion *msg_quaternion = new gazebo::msgs::Quaternion();
+		gazebo::msgs::Vector3d *msg_vector = new gazebo::msgs::Vector3d();
+		// set rotation
+		msg_quaternion->set_w(1);
+		msg_quaternion->set_x(0);
+		msg_quaternion->set_y(0);
+		msg_quaternion->set_z(0);
+		// set position
+		msg_vector->set_x(0);
+		msg_vector->set_y(0);
+		msg_vector->set_z(0);
+		// set pose
+		msg_pose->set_allocated_orientation(msg_quaternion);
+    	msg_pose->set_allocated_position(msg_vector);
+		// set model
+		msg_model.set_allocated_pose(msg_pose);
+    	msg_model.set_name("bebop2");
+		this->reset_pub->Publish(msg_model,true);
+	}
+}
 
+// Reading Follower pose from Gazebo
+void data_logger::read_pose(ConstPosesStampedPtr &msg)
+{
 	for (int i =0; i < msg->pose_size(); ++i)
     	{
 		const ::gazebo::msgs::Pose &pose = msg->pose(i);
@@ -77,8 +109,11 @@ int main(int argc, char **argv)
 	gazebo::transport::NodePtr node(new gazebo::transport::Node());
 	node->Init();
 
+	my_logger.reset_sub = nh.subscribe("/Sphinx/reset", 1, &data_logger::reset, &my_logger);
 	my_logger.odom_gazebo_sub = node->Subscribe("/gazebo/default/pose/info", &data_logger::read_pose, &my_logger);
-    my_logger.odom_pub = nh.advertise<nav_msgs::Odometry>("/groundTruth/odometry",1);
+    my_logger.reset_pub = node->Advertise<gazebo::msgs::Model>("/gazebo/default/model/modify",1);
+	my_logger.odom_pub = nh.advertise<nav_msgs::Odometry>("/groundTruth/odometry",1);
+	my_logger.reset_pub->WaitForConnection();
 
 	while (ros::ok())
 	{
