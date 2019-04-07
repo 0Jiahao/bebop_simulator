@@ -19,6 +19,8 @@ class data_logger
 	public:
 		gazebo::transport::SubscriberPtr odom_gazebo_sub;
 		ros::Publisher odom_pub;
+		bool isInited = false;
+		nav_msgs::Odometry odom_temp;
 
 	data_logger(){}
 	void read_pose(ConstPosesStampedPtr &msg);
@@ -44,7 +46,21 @@ void data_logger::read_pose(ConstPosesStampedPtr &msg){
 			odom.pose.pose.orientation.y = q.y();
 			odom.pose.pose.orientation.z = q.z();
 			odom.pose.pose.orientation.w = q.w();
+			if(this->isInited)
+			{
+				ros::Duration diff = odom.header.stamp - this->odom_temp.header.stamp;
+				double dt = diff.toSec();
+				odom.twist.twist.linear.x = odom.pose.pose.position.x - odom_temp.pose.pose.position.x;
+				odom.twist.twist.linear.y = odom.pose.pose.position.y - odom_temp.pose.pose.position.y;
+				odom.twist.twist.linear.z = odom.pose.pose.position.z - odom_temp.pose.pose.position.z;
+				// differential
+			}
+			else
+			{
+				this->isInited = true;
+			}
 			this->odom_pub.publish(odom);
+			this->odom_temp = odom;
 		}
 	}
 }
@@ -72,5 +88,3 @@ int main(int argc, char **argv)
 	gazebo::client::shutdown();
 	return 0;
 }
-
-
