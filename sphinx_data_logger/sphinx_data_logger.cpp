@@ -12,6 +12,8 @@
 #include <sstream>
 #include <iostream>
 #include <fstream>
+#include <cstdlib>
+#include <math.h>
 
 using namespace std;
 
@@ -20,6 +22,7 @@ class data_logger
 	public:
 		gazebo::transport::SubscriberPtr odom_gazebo_sub;
 		ros::Subscriber reset_sub;
+		ros::Subscriber random_reset_sub;
 		gazebo::transport::PublisherPtr reset_pub;
 		ros::Publisher odom_pub;
 
@@ -29,6 +32,7 @@ class data_logger
 	data_logger(){}
 	void read_pose(ConstPosesStampedPtr &msg);
 	void reset(const std_msgs::Bool& msg);
+	void random_reset(const std_msgs::Bool& msg);
 };
 
 void data_logger::reset(const std_msgs::Bool& msg)
@@ -48,6 +52,35 @@ void data_logger::reset(const std_msgs::Bool& msg)
 		msg_vector->set_x(0);
 		msg_vector->set_y(0);
 		msg_vector->set_z(0);
+		// set pose
+		msg_pose->set_allocated_orientation(msg_quaternion);
+    	msg_pose->set_allocated_position(msg_vector);
+		// set model
+		msg_model.set_allocated_pose(msg_pose);
+    	msg_model.set_name("bebop2");
+		this->reset_pub->Publish(msg_model,true);
+	}
+}
+
+void data_logger::random_reset(const std_msgs::Bool& msg)
+{
+	if(msg.data)
+	{
+		gazebo::msgs::Model msg_model;
+		gazebo::msgs::Pose *msg_pose = new gazebo::msgs::Pose();
+		gazebo::msgs::Quaternion *msg_quaternion = new gazebo::msgs::Quaternion();
+		gazebo::msgs::Vector3d *msg_vector = new gazebo::msgs::Vector3d();
+		// set rotation
+		double w = (rand() % 2000 -1000)/1000.0;
+		double z = (rand() % 2 == 0)?sqrtf(1 - powf(w,2)):-sqrtf(1 - powf(w,2));
+		msg_quaternion->set_w(w);
+		msg_quaternion->set_x(0);
+		msg_quaternion->set_y(0);
+		msg_quaternion->set_z(z);
+		// set position
+		msg_vector->set_x((rand() % 1000 -500)/100.0);
+		msg_vector->set_y((rand() % 1000 -500)/100.0);
+		msg_vector->set_z(1.0);
 		// set pose
 		msg_pose->set_allocated_orientation(msg_quaternion);
     	msg_pose->set_allocated_position(msg_vector);
@@ -109,10 +142,11 @@ int main(int argc, char **argv)
 	gazebo::transport::NodePtr node(new gazebo::transport::Node());
 	node->Init();
 
-	my_logger.reset_sub = nh.subscribe("/Sphinx/reset", 1, &data_logger::reset, &my_logger);
+	my_logger.reset_sub = nh.subscribe("/simulator/reset", 1, &data_logger::reset, &my_logger);
+	my_logger.random_reset_sub = nh.subscribe("/simulator/random_reset", 1, &data_logger::random_reset, &my_logger);
 	my_logger.odom_gazebo_sub = node->Subscribe("/gazebo/default/pose/info", &data_logger::read_pose, &my_logger);
     my_logger.reset_pub = node->Advertise<gazebo::msgs::Model>("/gazebo/default/model/modify",1);
-	my_logger.odom_pub = nh.advertise<nav_msgs::Odometry>("/groundTruth/odometry",1);
+	my_logger.odom_pub = nh.advertise<nav_msgs::Odometry>("/simulator/odometry",1);
 	my_logger.reset_pub->WaitForConnection();
 
 	while (ros::ok())
