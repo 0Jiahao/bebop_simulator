@@ -15,12 +15,54 @@ $ catkin build
 ```
 
 #### Scripts
-- `Start.sh`: start the simulation
-- `Takeoff.sh`: takeoff
-- `Land.sh`: land
-- `Reset.sh`: start at the origin and takeoff
-- `Random_Reset.sh`: start at a random position with random yaw angle and takeoff
+- ** Start.sh**: start the simulation
+- **Takeoff.sh**: takeoff
+- **Land.sh**: land
+- **Reset.sh**: start at the origin and takeoff
+- **Random_Reset.sh**: start at a random position with random yaw angle and takeoff
 
 #### Data reading
 The ground truth data can be read via topic /simulator/odometry.
 <img src="img/example.png" alt="fig1">
+
+#### Model Identification
+
+Different models are simply estimated, including pitch, roll, and vertical velocity, yawrate. Some estimated parameter can be found in [results.txt](https://github.com/0Jiahao/bebop_simulator/blob/master/bebop_identification/identification_result/results.txt). We currently using pitch, roll and vertical velocity for system modelling.
+
+**Pitch Model** is a first-order system
+<p align="center">
+  <img src="img/pitch_model.png">
+</p>
+
+with constraint
+<p align="center">
+  <img src="img/pitch_constraint.png">
+</p>
+
+**Roll Model** is a first-order system
+<p align="center">
+  <img src="img/roll_model.png">
+</p>
+
+with constraint
+<p align="center">
+  <img src="img/roll_constraint.png">
+</p>
+
+**Vertical Velocity Model** is a second-order system
+<p align="center">
+  <img src="img/vz_model.png">
+</p>
+
+with constraint
+<p align="center">
+  <img src="img/vz_constraint.png">
+</p>
+
+The integrated system (linearized around stationary) can be written as
+<p align="center">
+  <img src="img/state_equation.png">
+</p>
+<p align="center">
+  <img src="img/output_equation.png">
+</p>

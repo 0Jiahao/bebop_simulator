@@ -10,8 +10,8 @@ function plot_3d_obj(obj,init,tar)
     line([oPt(1) yPt(1)],[oPt(2) yPt(2)],[oPt(3) yPt(3)],'Color','green','LineWidth',3);
     line([oPt(1) zPt(1)],[oPt(2) zPt(2)],[oPt(3) zPt(3)],'Color','blue','LineWidth',3);
     axis equal;
-    xlim([-10,10]); xlabel('x');
-    ylim([-10,10]); ylabel('y');
+    xlim([-20,20]); xlabel('x');
+    ylim([-20,20]); ylabel('y');
     zlim([0,10]); zlabel('z');
     hold off;
 end

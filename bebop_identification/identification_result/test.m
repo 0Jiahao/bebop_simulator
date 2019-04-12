@@ -28,51 +28,43 @@ yc1 = 29.0473; % yall model
 yc2 = -0.1190; % yall model
 yd =   0.0000; % yall model
 
-A = [   0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0; % x
-        0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0; % y
-        0,  0,  0,  0,  0,vc1,vc2,  0,  0,  0,  0,  0; % z
-        0,  0,  0,-Ax,  0,  0,  0,  0,  g,  0,  0,  0; % vx
-        0,  0,  0,  0,-Ay,  0,  0,  g,  0,  0,  0,  0; % vy
-        0,  0,  0,  0,  0,va1,va2,  0,  0,  0,  0,  0; % z1
-        0,  0,  0,  0,  0,va3,va4,  0,  0,  0,  0,  0; % z2
-        0,  0,  0,  0,  0,  0,  0, ra,  0,  0,  0,  0; % roll
-        0,  0,  0,  0,  0,  0,  0,  0, pa,  0,  0,  0; % pitch
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,yc1,yc2; % yall
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,ya1,ya2; % y1
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,ya3,ya4];% y2
+A = [   0,  0,  0,  1,  0,  0,  0,  0,  0; % x
+        0,  0,  0,  0,  1,  0,  0,  0,  0; % y
+        0,  0,  0,  0,  0,vc1,vc2,  0,  0; % z
+        0,  0,  0,-Ax,  0,  0,  0,  0,  g; % vx
+        0,  0,  0,  0,-Ay,  0,  0,  g,  0; % vy
+        0,  0,  0,  0,  0,va1,va2,  0,  0; % z1
+        0,  0,  0,  0,  0,va3,va4,  0,  0; % z2
+        0,  0,  0,  0,  0,  0,  0, ra,  0; % roll
+        0,  0,  0,  0,  0,  0,  0,  0, pa];% pitch
     
-B = [   0,  0,  0,  0;
-        0,  0,  0,  0;
-        0,  0, vd,  0;
-        0,  0,  0,  0;
-        0,  0,  0,  0;
-        0,  0,vb1,  0;
-        0,  0,vb2,  0;
-       rb,  0,  0,  0;
-        0, pb,  0,  0;
-        0,  0,  0, yd;
-        0,  0,  0,yb1;
-        0,  0,  0,yb2];
+B = [   0,  0,  0;
+        0,  0,  0;
+        0,  0, vd;
+        0,  0,  0;
+        0,  0,  0;
+        0,  0,vb1;
+        0,  0,vb2;
+       rb,  0,  0;
+        0, pb,  0];
     
-C = [1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0; % x
-     0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0; % y
-     0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0; % z
-     0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0; % vx
-     0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0; % vy
-     0,  0,  0,  0,  0,vc1,vc2,  0,  0,  0,  0,  0; % vz
-     0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0; % roll
-     0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0; % pitch
-     0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0];% yall 
+C = [1,  0,  0,  0,  0,  0,  0,  0,  0; % x
+     0,  1,  0,  0,  0,  0,  0,  0,  0; % y
+     0,  0,  1,  0,  0,  0,  0,  0,  0; % z
+     0,  0,  0,  1,  0,  0,  0,  0,  0; % vx
+     0,  0,  0,  0,  1,  0,  0,  0,  0; % vy
+     0,  0,  0,  0,  0,vc1,vc2,  0,  0; % vz
+     0,  0,  0,  0,  0,  0,  0,  1,  0; % roll
+     0,  0,  0,  0,  0,  0,  0,  0,  1];% pitch
 
-D = [0,  0,  0,  0;
-     0,  0,  0,  0;
-     0,  0,  0,  0;
-     0,  0,  0,  0;
-     0,  0,  0,  0;
-     0,  0, vd,  0;
-     0,  0,  0,  0;
-     0,  0,  0,  0;
-     0,  0,  0,  0];
+D = [0,  0,  0;
+     0,  0,  0;
+     0,  0,  0;
+     0,  0,  0;
+     0,  0,  0;
+     0,  0, vd;
+     0,  0,  0;
+     0,  0,  0];
 
 sysc = ss(A,B,C,D);
 
@@ -80,34 +72,34 @@ sysc = ss(A,B,C,D);
 sysd = c2d(sysc, Ts);
 
 % initial state
-bebop2 = [0; 0; 1; 0; 0; 0; 0; 0; 0; 0; 0; 0]; % x, y, z, vx, vy, z1, z2, R, P, Y, y1, y2
+states = [0; 0; 1; 0; 0; 0; 0; 0; 0]; % x, y, z, vx, vy, z1, z2, R, P
 
 % MPC setup
 MV_R = struct('Min',-0.0556 * pi,'Max',0.0556 * pi);
 MV_P = struct('Min',-0.0556 * pi,'Max',0.0556 * pi);
 MV_V = struct('Min',-1,'Max',1);
-MV_Y = struct('Min',-pi/2,'Max',pi/2);
-MV = [MV_R, MV_P, MV_V, MV_Y];
-W = [1,1,1,0,0,0,0,0,1];
-mpcobj = mpc(sysd,Ts,20,1,[],MV,[],[],[]);
+MV = [MV_R, MV_P, MV_V];
+W = [1,1,1,0,0,0,0,0];
+mpcobj = mpc(sysd,Ts,50,1,[],MV,[],[],[]);
 mpcobj.Weight.OutputVariables = W;
 options = mpcsimopt(mpcobj);
-options.PlantInitialState = bebop2;
-refs = [5,4,7,0,0,0,0,0,2 * pi];
+options.PlantInitialState = states;
+refs = [16,-17,7,0,0,0,0,0];
 
 % MPC simulation
-[~,~,u,~,~,~] = sim(mpcobj,150,refs,options);
+[~,~,u,~,~,~] = sim(mpcobj,300,refs,options);
 
 % visualization
 for i = 1:size(u,1)
-    bebop2 = sysd.A * bebop2 + sysd.B * u(i,:)';
-    output = sysd.C * bebop2 + sysd.D * u(i,:)';
+    states = sysd.A * states + sysd.B * u(i,:)';
+    output = sysd.C * states + sysd.D * u(i,:)';
+    output = [output;0];
     % viz body frame
     plot_3d_obj(output,options.PlantInitialState(1:3),refs(1:3));...
     title({["t="+num2str(i*Ts,'%1.1f')];...
            ["x="+num2str(output(1),'%1.1f')+" y="+num2str(output(2),'%1.1f')+" z="+num2str(output(3),'%1.1f')];...
            ["vx="+num2str(output(4),'%1.1f')+" vy="+num2str(output(5),'%1.1f')+" vz="+num2str(output(6),'%1.1f')];...
-           ["roll="+num2str(rem(output(7)/pi*180+180,360)-180,'%1.1f')+" pitch="+num2str(rem(output(7)/pi*180+180,360)-180,'%1.1f')+" yaw="+num2str(rem(output(9)/pi*180+180,360)-180,'%1.1f')]});
+           ["R_w="+num2str(rem(output(7)/pi*180+180,360)-180,'%1.1f')+" P_w="+num2str(rem(output(8)/pi*180+180,360)-180,'%1.1f')+" Y_w="+num2str(rem(output(9)/pi*180+180,360)-180,'%1.1f')]});
     % viz path
     pause(0.0)
 end
