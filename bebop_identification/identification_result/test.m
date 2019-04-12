@@ -69,17 +69,21 @@ MV = [MV_R, MV_P, MV_V];
 mpcobj = mpc(sysd,Ts,20,1,[],MV,[],[],[]);
 options = mpcsimopt(mpcobj);
 options.PlantInitialState = bebop2;
-refs = [5,6,4,0,0,0];
+refs = [-4,-2,1,0,0,0];
 
 % MPC simulation
-[~,~,u,~,~,~] = sim(mpcobj,500,refs,options);
+[~,~,u,~,~,~] = sim(mpcobj,150,refs,options);
 
 % visualization
 for i = 1:size(u,1)
     bebop2 = sysd.A * bebop2 + sysd.B * u(i,:)';
+    output = sysd.C * bebop2 + sysd.D * u(i,:)';
     % viz body frame
-    plot_3d_obj(bebop2,options.PlantInitialState(1:3),refs(1:3));
-    title(["t="+num2str(i*Ts,'%1.1f')+" x="+num2str(bebop2(1),'%1.1f')+" y="+num2str(bebop2(2),'%1.1f')+" z="+num2str(bebop2(3),'%1.1f')+" roll="+num2str(bebop2(8)/pi*180,'%1.1f')+" pitch="+num2str(bebop2(9)/pi*180,'%1.1f')]);
+    plot_3d_obj(bebop2,options.PlantInitialState(1:3),refs(1:3));...
+    title({["t="+num2str(i*Ts,'%1.1f')];...
+           ["x="+num2str(bebop2(1),'%1.1f')+" y="+num2str(bebop2(2),'%1.1f')+" z="+num2str(bebop2(3),'%1.1f')];...
+           ["vx="+num2str(output(4),'%1.1f')+" vy="+num2str(output(5),'%1.1f')+" vz="+num2str(output(6),'%1.1f')];...
+           ["roll="+num2str(bebop2(8)/pi*180,'%1.1f')+" pitch="+num2str(bebop2(9)/pi*180,'%1.1f')]});
     % viz path
     pause(0.0)
 end

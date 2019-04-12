@@ -58,25 +58,32 @@ sysc = ss(A,B,C,D);
 % Discrete-time model 
 sysd = c2d(sysc, Ts);
 
-% initialization
-% bebop2 = [0; 0; 5; 0; 0; 0; 0; 0; 0]; % x, y, z, vx, vy, s1, s2, R, P
-% input = [0.0278*pi*ones(1,1000);... % roll
-%          0.0278*pi*ones(1,1000);... % pitch
-%          1.0000*ones(1,1000)];      % vertical velocity
-% pos = [];
-% i = 0;
-% while(true)
-%     i = i + 1;
-%     input(:,i) = input(:,i) .* [sin(i/36*pi);sin(i/20*pi);sin(i/9*pi)];
-%     bebop2 = sysd.A * bebop2 + sysd.B * input(:,i);
-%     % viz body frame
-%     plot_3d_obj(bebop2);
-%     title(["t="+num2str(i*Ts,'%1.1f')+" x="+num2str(bebop2(1),'%1.1f')+" y="+num2str(bebop2(2),'%1.1f')+" z="+num2str(bebop2(3),'%1.1f')+" roll="+num2str(bebop2(8)/pi*180,'%1.1f')+" pitch="+num2str(bebop2(9)/pi*180,'%1.1f')]);
-%     % viz path
-%     pause(0.0)
-% end
-mpcobj = mpc(sysd,Ts,20,1,);
+% initial state
+bebop2 = [0; 0; 1; 0; 0; 0; 0; 0; 0]; % x, y, z, vx, vy, s1, s2, R, P
+
+% MPC setup
+MV_R = struct('Min',-0.0556 * pi,'Max',0.0556 * pi);
+MV_P = struct('Min',-0.0556 * pi,'Max',0.0556 * pi);
+MV_V = struct('Min',-1,'Max',1);
+MV = [MV_R, MV_P, MV_V];
+mpcobj = mpc(sysd,Ts,20,1,[],MV,[],[],[]);
 options = mpcsimopt(mpcobj);
-options.PlantInitialState = zeros(9,1);
-refs = [5,4,2,0,0,0];
-sim(mpcobj,200,refs,options)
+options.PlantInitialState = bebop2;
+refs = [5,6,4,0,0,0];
+
+% MPC simulation
+[~,~,u,~,~,~] = sim(mpcobj,150,refs,options);
+
+% visualization
+for i = 1:size(u,1)
+    bebop2 = sysd.A * bebop2 + sysd.B * u(i,:)';
+    output = sysd.C * bebop2 + sysd.D * 
+    % viz body frame
+    plot_3d_obj(bebop2,options.PlantInitialState(1:3),refs(1:3));...
+    title({["t="+num2str(i*Ts,'%1.1f')];...
+           ["x="+num2str(bebop2(1),'%1.1f')+" y="+num2str(bebop2(2),'%1.1f')+" z="+num2str(bebop2(3),'%1.1f')];...
+           ["vx="+num2str(bebop2(1),'%1.1f')+" vy="+num2str(bebop2(2),'%1.1f')+" vz="+num2str(bebop2(3),'%1.1f')];...
+           ["roll="+num2str(bebop2(8)/pi*180,'%1.1f')+" pitch="+num2str(bebop2(9)/pi*180,'%1.1f')]});
+    % viz path
+    pause(0.0)
+end
