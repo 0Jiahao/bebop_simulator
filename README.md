@@ -27,7 +27,7 @@ The ground truth data can be read via topic /simulator/odometry.
 
 #### Model Identification
 
-Different models are simply estimated, including pitch, roll, and vertical velocity, yawrate. Some estimated parameter can be found in [results.txt](https://github.com/0Jiahao/bebop_simulator/blob/master/bebop_identification/identification_result/results.txt). We currently using pitch, roll and vertical velocity for system modelling.
+Different models are simply estimated, including pitch, roll, and vertical velocity, yawrate, air drag. Some estimated parameter can be found in [results.txt](https://github.com/0Jiahao/bebop_simulator/blob/master/bebop_identification/identification_result/results.txt). We currently using pitch, roll and vertical velocity for system modelling.
 
 **Pitch Model** is a first-order system
 <p align="center">
@@ -59,10 +59,12 @@ with constraint
   <img src="img/vz_constraint.png">
 </p>
 
-The integrated system (linearized around stationary) can be written as
+The **Integrated System** (linearized around stationary) can be written as
 <p align="center">
   <img src="img/state_equation.png">
 </p>
 <p align="center">
   <img src="img/output_equation.png">
 </p>
+
+Note that the <img src="img/airdrag_x.png"> and <img src="img/airdrag_y.png"> are the estimated coefficients of air drag force.
