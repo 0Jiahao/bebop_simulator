@@ -1,7 +1,7 @@
 function plot_3d_obj(obj,init,tar)
     scatter3(init(1),init(2),init(3),20,'filled','MarkerEdgeColor',[1 0 0],'MarkerFaceColor',[1 0 0]); hold on;
     scatter3(tar(1),tar(2),tar(3),20,'filled','MarkerEdgeColor',[0 1 0],'MarkerFaceColor',[0 1 0]);
-    rotm = eul2rotm([0, obj(9), -obj(8)]);
+    rotm = eul2rotm([obj(9), obj(8), -obj(7)]);
     oPt = obj(1:3)';
     xPt = (obj(1:3)' + (rotm * [3,0,0]')') ;
     yPt = (obj(1:3)' + (rotm * [0,3,0]')');
