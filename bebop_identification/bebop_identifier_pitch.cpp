@@ -16,7 +16,7 @@ int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "bebop_identifier_pitch");
 	ros::NodeHandle nh;
-	ros::Rate loop_rate(50);  // in Hz
+	ros::Rate loop_rate(15);  // in Hz
 
 	ros::Publisher cmd_pub = nh.advertise<geometry_msgs::Twist>("/bebop2/cmd_vel",1);
 	ros::Publisher cmd_log_pub = nh.advertise<geometry_msgs::TwistStamped>("/data_logger/cmd_vel",1);

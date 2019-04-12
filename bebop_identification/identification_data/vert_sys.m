@@ -6,6 +6,9 @@ bag = rosbag([file_name + ".bag"]);
 bSel = select(bag,'Topic','/data_logger/cmd_vel');
 cmd = readMessages(bSel,'DataFormat','struct');
 
+% mass
+m = 0.5; % kg
+
 % input data
 u = [];
 t = [];
@@ -35,10 +38,14 @@ for i = 1:numel(odom)
         end
     end
 end
-y = smooth(y);
+y = smooth(y,5);
 Ts = mean(t(2:end) - t(1:end-1));
 datatrn = iddata(y,u,Ts);
-sys = n4sid(datatrn,2);
+sys = n4sid(datatrn,2,'InputDelay',3);
+% C = sys.C;
+% sys.C = (C * sys.A - C) / Ts * m;
+% sys.D = C * sys.B / Ts * m;
+sys.K = [0;0];
 %% testing 
 file_name = "vert_tst";
 bag = rosbag([file_name + ".bag"]);
@@ -75,8 +82,8 @@ for i = 1:numel(odom)
         end
     end
 end
-y = smooth(y);
+% y = gradient(y) / Ts * m;
+y = smooth(y,5);
 datatst = iddata(y,u,Ts);
-sys.K = [0;0];
 compare(datatst,sys);
 sys

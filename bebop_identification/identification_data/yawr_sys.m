@@ -48,7 +48,7 @@ end
 y = smooth(y);
 Ts = mean(t(2:end) - t(1:end-1));
 datatrn = iddata(y,u,Ts);
-sys = n4sid(datatrn,2);
+sys = n4sid(datatrn,2,'InputDelay',3);
 %% testing 
 file_name = "yaw_tst";
 bag = rosbag([file_name + ".bag"]);

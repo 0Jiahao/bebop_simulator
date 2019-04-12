@@ -39,3 +39,9 @@ target_link_libraries(bebop_identifier_vertical_speed ${catkin_LIBRARIES} ${GAZE
 
 add_executable(bebop_identifier_yaw_speed bebop_identifier_yaw_speed.cpp)
 target_link_libraries(bebop_identifier_yaw_speed ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES} pthread)
+
+add_executable(bebop_identifier_airdrag_x bebop_identifier_airdrag_x.cpp)
+target_link_libraries(bebop_identifier_airdrag_x ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES} pthread)
+
+add_executable(bebop_identifier_airdrag_y bebop_identifier_airdrag_y.cpp)
+target_link_libraries(bebop_identifier_airdrag_y ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES} pthread)
