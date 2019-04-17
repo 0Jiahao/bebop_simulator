@@ -104,7 +104,7 @@ for i = 1:size(u,1)
     states = sysd.A * states + sysd.B * u(i,:)';
     output = sysd.C * states + sysd.D * u(i,:)';
     % viz body frame
-    plot_3d_obj(output,options.PlantInitialState(1:3),refs(1:3));...
+    plot_3d_obj(output,options.PlantInitialState(1:3),refs(1:3));
     title({["t="+num2str(i*Ts,'%1.1f')];...
            ["x="+num2str(output(1),'%1.1f')+" y="+num2str(output(2),'%1.1f')+" z="+num2str(output(3),'%1.1f')];...
            ["vx="+num2str(output(4),'%1.1f')+" vy="+num2str(output(5),'%1.1f')+" vz="+num2str(output(6),'%1.1f')];...
@@ -112,3 +112,4 @@ for i = 1:size(u,1)
     % viz path
     pause(0.0)
 end
+
