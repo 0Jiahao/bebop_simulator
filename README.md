@@ -15,7 +15,7 @@ $ catkin build
 ```
 
 #### Scripts
-- ** Start.sh**: start the simulation
+- **Start.sh**: start the simulation
 - **Takeoff.sh**: takeoff
 - **Land.sh**: land
 - **Reset.sh**: start at the origin and takeoff
