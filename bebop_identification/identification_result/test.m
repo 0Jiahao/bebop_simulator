@@ -85,7 +85,7 @@ mpcobj = mpc(sysd,Ts,50,1,[],MV,[],[],[]);
 mpcobj.Weight.OutputVariables = W;
 options = mpcsimopt(mpcobj);
 options.PlantInitialState = states;
-refs = [16,-17,7,0,0,0,0,0];
+refs = [0,10,1,0,0,0,0,0];
 
 % MPC simulation
 [~,~,u,~,~,~] = sim(mpcobj,300,refs,options);
@@ -95,6 +95,7 @@ for i = 1:size(u,1)
     states = sysd.A * states + sysd.B * u(i,:)';
     output = sysd.C * states + sysd.D * u(i,:)';
     output = [output;0];
+    states(end-1)
     % viz body frame
     plot_3d_obj(output,options.PlantInitialState(1:3),refs(1:3));...
     title({["t="+num2str(i*Ts,'%1.1f')];...

@@ -20,4 +20,10 @@ source ~/catkin_ws/devel/setup.bash
 gnome-terminal --tab "data logger" -x bash -c "rosrun sphinx_data_logger sphinx_data_logger;exec bash;"
 sleep 1s
 
+# start data logger
+source /opt/ros/kinetic/setup.bash
+source ~/catkin_ws/devel/setup.bash
+gnome-terminal --tab "pub_15_hz" -x bash -c "rosrun topic_tools throttle messages /simulator/odometry 15 /bebop2/odometry;exec bash;"
+sleep 1s
+
 

@@ -38,7 +38,7 @@ for i = 1:numel(odom)
         ang_next = eul(3);
         timeStamp_last = double(odom{i-1, 1}.Header.Stamp.Sec) + double(odom{i-1, 1}.Header.Stamp.Nsec) * 1e-9;
         ang = ang_last + (t(u_idx) - timeStamp_last) / (timeStamp_next - timeStamp_last) * (ang_next - ang_last);
-        y = [y;-ang];
+        y = [y;ang];
         u_idx = u_idx + 1;
         if(u_idx) > numel(cmd)
            break; 
@@ -88,7 +88,7 @@ for i = 1:numel(odom)
         ang_next = eul(3);
         timeStamp_last = double(odom{i-1, 1}.Header.Stamp.Sec) + double(odom{i-1, 1}.Header.Stamp.Nsec) * 1e-9;
         ang = ang_last + (t(u_idx) - timeStamp_last) / (timeStamp_next - timeStamp_last) * (ang_next - ang_last);
-        y = [y;-ang];
+        y = [y;ang];
         u_idx = u_idx + 1;
         if(u_idx) > numel(cmd)
            break; 
