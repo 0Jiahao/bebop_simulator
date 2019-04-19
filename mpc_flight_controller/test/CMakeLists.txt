@@ -10,13 +10,13 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 # Project name and programming languages used
 PROJECT( mpc_flight_controller_test)
 
-include_directories(exportFolder/)
+include_directories(exportFolder)
 link_directories(exportFolder)
-ADD_SUBDIRECTORY(exportFolder)
+ADD_SUBDIRECTORY(ThirdParty/exportFolder)
 
 include_directories(qpoases)
 link_directories(qpoases)
-ADD_SUBDIRECTORY(qpoases)
+ADD_SUBDIRECTORY(ThirdParty/qpoases)
 
 ADD_EXECUTABLE(mpc_flight_controller_test test.cpp)
 TARGET_LINK_LIBRARIES(mpc_flight_controller_test qpoases exportFolder)
