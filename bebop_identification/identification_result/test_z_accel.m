@@ -6,15 +6,15 @@ m =       0.5; % mass [kg]
 g =      9.81; % gravity
 Ax =   0.1840; % air drag
 Ay =   0.2007; % air drag
-va1 =  -2.292; % vertical velocity model
-va2 =  -2.550; % vertical velocity model
-va3 =   9.742; % vertical velocity model
-va4 =  -5.845; % vertical velocity model
-vb1 = 0.00642; % vertical velocity model
-vb2 = -0.6570; % vertical velocity model
-vc1 =  17.650; % vertical velocity model
-vc2 = -0.3225; % vertical velocity model
-vd =        0; % vertical velocity model
+va1 =  -8.137; % vertical acceleration model
+va2 =  -38.24; % vertical acceleration model
+va3 =       1; % vertical acceleration model
+va4 =       0; % vertical acceleration model
+vb1 =       1; % vertical acceleration model
+vb2 =       0; % vertical acceleration model
+vc1 =   28.06; % vertical acceleration model
+vc2 =  -12.44; % vertical acceleration model
+vd =   0.3253; % vertical acceleration model
 ra =  -6.7529; % roll model
 rb =  6.86585; % roll model
 pa =  -6.7317; % pitch model
@@ -34,6 +34,7 @@ A = [   0,  0,  0,  1,  0,  0,  0,  0,  0; % x
         0,  0,  0,  0,  0,vc1,vc2,  0,  0; % z
         0,  0,  0,-Ax,  0,  0,  0,  0,  g; % vx
         0,  0,  0,  0,-Ay,  0,  0,  g,  0; % vy
+        0,  0,  0,  0,  0,  0,  0,  0,  0; % vz
         0,  0,  0,  0,  0,va1,va2,  0,  0; % z1
         0,  0,  0,  0,  0,va3,va4,  0,  0; % z2
         0,  0,  0,  0,  0,  0,  0, ra,  0; % roll
@@ -98,8 +99,8 @@ for i = 1:size(u,1)
     A = [   0,  0,  0,  1,  0,  0,  0,  0,  0; % x
         0,  0,  0,  0,  1,  0,  0,  0,  0; % y
         0,  0,  0,  0,  0,vc1,vc2,  0,  0; % z
-        0,  0,  0,-Ax,  0,  0,  0,  0,tp*g; % vx
-        0,  0,  0,  0,-Ay,  0,  0,tr*g,  0; % vy
+        0,  0,  0,-Ax,  0,  0,  0,  0,tp*m*g; % vx
+        0,  0,  0,  0,-Ay,  0,  0,tr*m*g,  0; % vy
         0,  0,  0,  0,  0,va1,va2,  0,  0; % z1
         0,  0,  0,  0,  0,va3,va4,  0,  0; % z2
         0,  0,  0,  0,  0,  0,  0, ra,  0; % roll

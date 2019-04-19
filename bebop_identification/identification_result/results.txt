@@ -69,6 +69,28 @@ vertical velocity(upward)
 	       u1
 	   y1   0
 
+vertical acceleration(upward)
+---
+	cmd: [-1,1]
+
+	Continuous-time second-order:
+	  A = 
+           	x1      x2
+	   x1  -8.137  -38.24
+	   x2       1       0
+	 
+	  B = 
+	       u1
+	   x1   1
+	   x2   0
+	 
+	  C = 
+		   x1      x2
+	   y1   28.06  -12.44
+	 
+	  D = 
+		   u1
+	   y1  0.3253
 yawrate(clockwise)
 ---
 	cmd: [-1,1]

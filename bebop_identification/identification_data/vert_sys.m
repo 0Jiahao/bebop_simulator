@@ -86,4 +86,9 @@ end
 y = smooth(y,5);
 datatst = iddata(y,u,Ts);
 compare(datatst,sys);
-sys
+close all;
+sysc = d2c(sys);
+[b,a] = ss2tf(sysc.A,sysc.B,sysc.C,sysc.D);
+bd = [b(2),b(3),0];
+[A,B,C,D] = tf2ss(bd,a);
+sysc = ss(A,B,C,D);
