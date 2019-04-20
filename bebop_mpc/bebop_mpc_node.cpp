@@ -8,10 +8,12 @@
 #include <math.h>
 #include "acado_common.h"
 #include "acado_auxiliary_functions.h"
+#include <time.h>
 
 #define NX          ACADO_NX	/* number of differential states */
 #define NXA         ACADO_NXA	/* number of alg. states */
 #define NU          ACADO_NU	/* number of control inputs */
+// #define NOD         ACADO_NOD  /* Number of online data values. */
 #define N          	ACADO_N		/* number of control intervals */
 #define NY			ACADO_NY	/* number of references, nodes 0..N - 1 */
 #define NYN			ACADO_NYN
@@ -40,30 +42,37 @@ bebop_mpc::bebop_mpc()
 {
     this->odom_sub = nh.subscribe("/bebop2/odometry", 1, &bebop_mpc::read_state,this);
     this->ctrl_pub = nh.advertise<geometry_msgs::Twist>("/bebop2/cmd_vel",1);
-    this->ref.position.x = 3;
-    this->ref.position.y = -3;
-    this->ref.position.z = 1.25;
+    this->ref.position.x = 5;
+    this->ref.position.y = 4;
+    this->ref.position.z = 3;
 }
 
 void bebop_mpc::read_state(const nav_msgs::Odometry& msg)
 {
+    // start clock
+    clock_t t_start = clock();
+
     // set reference
     for (int i = 0; i < NY * N; ++i)
 	{
-		acadoVariables.y[i * NY + 0] = 0; // x
-		acadoVariables.y[i * NY + 1] = 0; // y
-		acadoVariables.y[i * NY + 2] = 0; // z
+		acadoVariables.y[ 0 ] = 0;
+        acadoVariables.y[ 1 ] = 0; 
+        acadoVariables.y[ 2 ] = 0; 
 	}
 
     // set terminal reference
     acadoVariables.yN[ 0 ] = this->ref.position.x; // x
 	acadoVariables.yN[ 1 ] = this->ref.position.y; // y
 	acadoVariables.yN[ 2 ] = this->ref.position.z; // z
+    acadoVariables.yN[ 3 ] = 0; // y
+	acadoVariables.yN[ 4 ] = 0; // z
 
     for (int i = 0; i < NX; ++i)
 	{
 		acadoVariables.x0[ i ] = acadoVariables.x[ i ];
 	}
+
+    // cout << acadoVariables.od[0] << endl;
 
     acado_preparationStep();
 
@@ -74,10 +83,13 @@ void bebop_mpc::read_state(const nav_msgs::Odometry& msg)
     tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);
     roll = -roll;
 
+    // set online data - yaw angle
+    // acadoVariables.od[0] =  yaw;
+
     // convert true RPY to angles (assuming yaw is 0)
     double roll0, pitch0;
-    roll0 = -pitch * sin(yaw) + roll * cos(yaw);
-    pitch0 = pitch * cos(yaw) + roll * sin(yaw);
+    roll0 =  pitch * sin(yaw) + roll * cos(yaw);
+    pitch0 = pitch * cos(yaw) - roll * sin(yaw);
     
     // current feedback
     acadoVariables.x0[ 0 ] = msg.pose.pose.position.x;    // x
@@ -99,21 +111,25 @@ void bebop_mpc::read_state(const nav_msgs::Odometry& msg)
     // publish command
     geometry_msgs::Twist cmd;
     double rolld, pitchd;
-    rolld = acadoVariables.u[1] * sin(yaw) + acadoVariables.u[0] * cos(yaw);
-    pitchd = acadoVariables.u[1] * cos(yaw) - acadoVariables.u[0] * sin(yaw);
-    cmd.linear.x = pitchd / (M_PI / 18) / 2; // pitch
-    cmd.linear.y = rolld / (M_PI / 18) / 2; // roll
+    rolld = -acadoVariables.u[1] * sin(yaw) + acadoVariables.u[0] * cos(yaw);
+    pitchd = acadoVariables.u[1] * cos(yaw) + acadoVariables.u[0] * sin(yaw);
+    cmd.linear.x = pitchd / (M_PI / 18); // pitch
+    cmd.linear.y = rolld / (M_PI / 18); // roll
     cmd.linear.z = acadoVariables.u[2]; // vertical velocity
     ctrl_pub.publish(cmd);
 
     // shift states
-    acado_shiftStates(2, 0, 0);
+    acado_shiftStates(0, 0, 0);
 
     // shift control
     acado_shiftControls( 0 );
 
     // prepare mpc solver
     acado_preparationStep();
+
+    // end clock
+    clock_t t_end = clock();
+	cout << "[INFO] solving time: " << ((float)(t_end - t_start))/CLOCKS_PER_SEC << endl;
 }
 
 int main(int argc, char **argv)  

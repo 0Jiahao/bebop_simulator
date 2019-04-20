@@ -62,9 +62,9 @@ extern "C"
 /** Indicator for fixed initial state. */
 #define ACADO_INITIAL_STATE_FIXED 1
 /** Number of control/estimation intervals. */
-#define ACADO_N 30
+#define ACADO_N 37
 /** Number of online data values. */
-#define ACADO_NOD 2
+#define ACADO_NOD 1
 /** Number of path constraints. */
 #define ACADO_NPAC 0
 /** Number of control variables. */
@@ -78,13 +78,13 @@ extern "C"
 /** Number of references/measurements per node on the first N nodes. */
 #define ACADO_NY 3
 /** Number of references/measurements on the last (N + 1)st node. */
-#define ACADO_NYN 3
+#define ACADO_NYN 5
 /** Total number of QP optimization variables. */
-#define ACADO_QP_NV 90
+#define ACADO_QP_NV 111
 /** Number of integration steps per shooting interval. */
 #define ACADO_RK_NIS 1
 /** Number of Runge-Kutta stages per integration step. */
-#define ACADO_RK_NSTAGES 1
+#define ACADO_RK_NSTAGES 93
 /** Providing interface for arrival cost. */
 #define ACADO_USE_ARRIVAL_COST 0
 /** Indicator for usage of non-hard-coded linear terms in the objective. */
@@ -104,35 +104,35 @@ extern "C"
 typedef struct ACADOvariables_
 {
 int dummy;
-/** Matrix of size: 31 x 9 (row major format)
+/** Matrix of size: 38 x 9 (row major format)
  * 
- *  Matrix containing 31 differential variable vectors.
+ *  Matrix containing 38 differential variable vectors.
  */
-real_t x[ 279 ];
+real_t x[ 342 ];
 
-/** Matrix of size: 30 x 3 (row major format)
+/** Matrix of size: 37 x 3 (row major format)
  * 
- *  Matrix containing 30 control variable vectors.
+ *  Matrix containing 37 control variable vectors.
  */
-real_t u[ 90 ];
+real_t u[ 111 ];
 
-/** Matrix of size: 31 x 2 (row major format)
+/** Column vector of size: 38
  * 
- *  Matrix containing 31 online data vectors.
+ *  Matrix containing 38 online data vectors.
  */
-real_t od[ 62 ];
+real_t od[ 38 ];
 
-/** Column vector of size: 90
+/** Column vector of size: 111
  * 
- *  Matrix containing 30 reference/measurement vectors of size 3 for first 30 nodes.
+ *  Matrix containing 37 reference/measurement vectors of size 3 for first 37 nodes.
  */
-real_t y[ 90 ];
+real_t y[ 111 ];
 
-/** Column vector of size: 3
+/** Column vector of size: 5
  * 
- *  Reference/measurement vector for the 31. node.
+ *  Reference/measurement vector for the 38. node.
  */
-real_t yN[ 3 ];
+real_t yN[ 5 ];
 
 /** Column vector of size: 9
  * 
@@ -151,66 +151,38 @@ real_t x0[ 9 ];
  */
 typedef struct ACADOworkspace_
 {
-real_t rk_dim9_swap;
-
-/** Column vector of size: 9 */
-real_t rk_dim9_bPerm[ 9 ];
-
-real_t rk_ttt;
-
-/** Row vector of size: 14 */
-real_t rk_xxx[ 14 ];
-
-/** Column vector of size: 9 */
-real_t rk_kkk[ 9 ];
-
-/** Matrix of size: 9 x 9 (row major format) */
-real_t rk_A[ 81 ];
-
-/** Column vector of size: 9 */
-real_t rk_b[ 9 ];
-
-/** Row vector of size: 9 */
-int rk_dim9_perm[ 9 ];
-
-/** Column vector of size: 9 */
-real_t rk_rhsTemp[ 9 ];
-
-/** Row vector of size: 108 */
-real_t rk_diffsTemp2[ 108 ];
-
-/** Column vector of size: 9 */
-real_t rk_diffK[ 9 ];
+/** Row vector of size: 13 */
+real_t rk_xxx[ 13 ];
 
 /** Matrix of size: 9 x 12 (row major format) */
 real_t rk_diffsNew2[ 108 ];
 
-/** Row vector of size: 122 */
-real_t state[ 122 ];
+/** Row vector of size: 121 */
+real_t state[ 121 ];
 
-/** Column vector of size: 270 */
-real_t d[ 270 ];
+/** Column vector of size: 333 */
+real_t d[ 333 ];
 
-/** Column vector of size: 90 */
-real_t Dy[ 90 ];
+/** Column vector of size: 111 */
+real_t Dy[ 111 ];
 
-/** Column vector of size: 3 */
-real_t DyN[ 3 ];
+/** Column vector of size: 5 */
+real_t DyN[ 5 ];
 
-/** Matrix of size: 270 x 9 (row major format) */
-real_t evGx[ 2430 ];
+/** Matrix of size: 333 x 9 (row major format) */
+real_t evGx[ 2997 ];
 
-/** Matrix of size: 270 x 3 (row major format) */
-real_t evGu[ 810 ];
+/** Matrix of size: 333 x 3 (row major format) */
+real_t evGu[ 999 ];
 
-/** Row vector of size: 14 */
-real_t objValueIn[ 14 ];
+/** Row vector of size: 13 */
+real_t objValueIn[ 13 ];
 
-/** Row vector of size: 3 */
-real_t objValueOut[ 3 ];
+/** Row vector of size: 5 */
+real_t objValueOut[ 5 ];
 
-/** Column vector of size: 279 */
-real_t sbar[ 279 ];
+/** Column vector of size: 342 */
+real_t sbar[ 342 ];
 
 /** Column vector of size: 9 */
 real_t Dx0[ 9 ];
@@ -221,11 +193,11 @@ real_t W1[ 27 ];
 /** Matrix of size: 9 x 3 (row major format) */
 real_t W2[ 27 ];
 
-/** Matrix of size: 4185 x 3 (row major format) */
-real_t E[ 12555 ];
+/** Matrix of size: 6327 x 3 (row major format) */
+real_t E[ 18981 ];
 
-/** Column vector of size: 279 */
-real_t QDy[ 279 ];
+/** Column vector of size: 342 */
+real_t QDy[ 342 ];
 
 /** Column vector of size: 9 */
 real_t w1[ 9 ];
@@ -233,32 +205,23 @@ real_t w1[ 9 ];
 /** Column vector of size: 9 */
 real_t w2[ 9 ];
 
-/** Matrix of size: 90 x 90 (row major format) */
-real_t H[ 8100 ];
+/** Matrix of size: 111 x 111 (row major format) */
+real_t H[ 12321 ];
 
-/** Matrix of size: 60 x 90 (row major format) */
-real_t A[ 5400 ];
+/** Column vector of size: 111 */
+real_t g[ 111 ];
 
-/** Column vector of size: 90 */
-real_t g[ 90 ];
+/** Column vector of size: 111 */
+real_t lb[ 111 ];
 
-/** Column vector of size: 90 */
-real_t lb[ 90 ];
+/** Column vector of size: 111 */
+real_t ub[ 111 ];
 
-/** Column vector of size: 90 */
-real_t ub[ 90 ];
+/** Column vector of size: 111 */
+real_t x[ 111 ];
 
-/** Column vector of size: 60 */
-real_t lbA[ 60 ];
-
-/** Column vector of size: 60 */
-real_t ubA[ 60 ];
-
-/** Column vector of size: 90 */
-real_t x[ 90 ];
-
-/** Column vector of size: 150 */
-real_t y[ 150 ];
+/** Column vector of size: 111 */
+real_t y[ 111 ];
 
 
 } ACADOworkspace;
@@ -270,7 +233,7 @@ real_t y[ 150 ];
 
 /** Performs the integration and sensitivity propagation for one shooting interval.
  *
- *  \param rk_eta Working array of size 14 to pass the input values and return the results.
+ *  \param rk_eta Working array to pass the input values and return the results.
  *  \param resetIntegrator The internal memory of the integrator can be reset.
  *
  *  \return Status code of the integrator.
@@ -283,13 +246,6 @@ int acado_integrate( real_t* const rk_eta, int resetIntegrator );
  *  \param out Output of the exported function.
  */
 void acado_rhs(const real_t* in, real_t* out);
-
-/** Export of an ACADO symbolic function.
- *
- *  \param in Input to the exported function.
- *  \param out Output of the exported function.
- */
-void acado_diffs(const real_t* in, real_t* out);
 
 /** Preparation step of the RTI scheme.
  *
@@ -315,7 +271,7 @@ void acado_initializeNodesByForwardSimulation(  );
 
 /** Shift differential variables vector by one interval.
  *
- *  \param strategy Shifting strategy: 1. Initialize node 31 with xEnd. 2. Initialize node 31 by forward simulation.
+ *  \param strategy Shifting strategy: 1. Initialize node 38 with xEnd. 2. Initialize node 38 by forward simulation.
  *  \param xEnd Value for the x vector on the last node. If =0 the old value is used.
  *  \param uEnd Value for the u vector on the second to last node. If =0 the old value is used.
  */

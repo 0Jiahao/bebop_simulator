@@ -115,9 +115,9 @@ void data_logger::read_pose(ConstPosesStampedPtr &msg)
 			{
 				ros::Duration diff = odom.header.stamp - this->odom_temp.header.stamp;
 				double dt = diff.toSec();
-				odom.twist.twist.linear.x = odom.pose.pose.position.x - odom_temp.pose.pose.position.x;
-				odom.twist.twist.linear.y = odom.pose.pose.position.y - odom_temp.pose.pose.position.y;
-				odom.twist.twist.linear.z = odom.pose.pose.position.z - odom_temp.pose.pose.position.z;
+				odom.twist.twist.linear.x = (odom.pose.pose.position.x - odom_temp.pose.pose.position.x) / dt;
+				odom.twist.twist.linear.y = (odom.pose.pose.position.y - odom_temp.pose.pose.position.y) / dt;
+				odom.twist.twist.linear.z = (odom.pose.pose.position.z - odom_temp.pose.pose.position.z) / dt;
 				// differential
 			}
 			else
