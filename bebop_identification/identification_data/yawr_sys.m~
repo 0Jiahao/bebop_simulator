@@ -52,19 +52,13 @@ sys = n4sid(datatrn,2,'InputDelay',3);
 sys.K = [0;0];
 
 % sysc = d2c(sys);
-% [b,a] = ss2tf(sysc.A,sysc.B,sysc.C,sysc.D);
-% systf = tf(b,a);
-% % step(systf,5);
+% [b,a] = ss2tf(sys.A,sys.B,sys.C,sys.D);
 % b = [0,b];
 % a = [a,0];
 % [A,B,C,D] = tf2ss(b,a);
-% sysy = ss(A,B,C,D);
-% sys = c2d(sysy,Ts);
-A = [1,Ts * sys.C;zeros(2,1),sys.A];
-B = [0;sys.B];
-C = [1,0,0];
-D = 0;
-sys = ss(A,B,C,D,Ts);
+% sys = ss(A,B,C,D);
+% sys = c2d(sys,Ts);
+
 %% testing 
 file_name = "yaw_tst";
 bag = rosbag([file_name + ".bag"]);
@@ -114,6 +108,3 @@ end
 y = smooth(y);
 datatst = iddata(y,u,Ts);
 compare(datatst,sys);
-
-
-% step(systry,5)

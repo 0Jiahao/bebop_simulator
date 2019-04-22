@@ -40,15 +40,19 @@ using namespace std;
 #define NX          ACADO_NX	/* number of differential states */
 #define NXA         ACADO_NXA	/* number of alg. states */
 #define NU          ACADO_NU	/* number of control inputs */
-#define NOD         ACADO_NOD  /* Number of online data values. */
 #define N          	ACADO_N		/* number of control intervals */
 #define NY			ACADO_NY	/* number of references, nodes 0..N - 1 */
 #define NYN			ACADO_NYN
 #define NUM_STEPS   10		    /* number of simulation steps */
 #define VERBOSE     0			/* show iterations: 1, silent: 0 */
 
-ACADOvariables acadoVariables;
-ACADOworkspace acadoWorkspace;
+class mpc_solver
+{
+	public:
+		// members
+		ACADOvariables acadoVariables;
+		ACADOworkspace acadoWorkspace;
+};
 
 int main()
 {
@@ -60,6 +64,7 @@ int main()
 	int status;
 
 	t1 = t2 = 0;
+
 	// // Reset all solver memory
 	// memset(&acadoWorkspace, 0, sizeof( acadoWorkspace ));
 	// memset(&acadoVariables, 0, sizeof( acadoVariables ));
@@ -77,18 +82,15 @@ int main()
 	//
 	for (i = 0; i < N + 1; ++i)
 	{
-		acadoVariables.x[i * NX + 0] = 0;
-		acadoVariables.x[i * NX + 1] = 0;
-		acadoVariables.x[i * NX + 2] = 1;
+		acadoVariables.x[i * NX + 0] = 1;
+		acadoVariables.x[i * NX + 1] = -1;
+		acadoVariables.x[i * NX + 2] = 3;
 		acadoVariables.x[i * NX + 3] = 0;
 		acadoVariables.x[i * NX + 4] = 0;
 		acadoVariables.x[i * NX + 5] = 0;
 		acadoVariables.x[i * NX + 6] = 0;
 		acadoVariables.x[i * NX + 7] = 0;
 		acadoVariables.x[i * NX + 8] = 0;
-		acadoVariables.x[i * NX + 9] = 0;
-		acadoVariables.x[i * NX +10] = 0;
-		acadoVariables.x[i * NX +11] = 0;
 	}
 
 	//
@@ -96,18 +98,17 @@ int main()
 	//
 	for (i = 0; i < NY * N; ++i)
 	{
-		acadoVariables.y[ 0 ] = 0;
-        acadoVariables.y[ 1 ] = 0; 
-        acadoVariables.y[ 2 ] = 0; 
-        acadoVariables.y[ 2 ] = 0; 
+		acadoVariables.y[i * NY + 0] = 0; // x
+		acadoVariables.y[i * NY + 1] = 0; // y
+		acadoVariables.y[i * NY + 2] = 0; // z
+		acadoVariables.y[i * NY + 3] = 0; // x
+		acadoVariables.y[i * NY + 4] = 0; // y
+		acadoVariables.y[i * NY + 5] = 0; // z
 	}
 
 	acadoVariables.yN[ 0 ] = 0; // x
 	acadoVariables.yN[ 1 ] = 0; // y
 	acadoVariables.yN[ 2 ] = 0; // z
-    acadoVariables.yN[ 3 ] = 0; // y
-	acadoVariables.yN[ 4 ] = 0; // z
-    acadoVariables.yN[ 5 ] = 1.5708; // z
 
 	//
 	// Current state feedback
@@ -148,12 +149,6 @@ int main()
 
 		acado_tic( &t );
 		status = acado_feedbackStep( );
-		cout << "---- control ----" << endl;
-		for (i = 0; i < N + 1; ++i)
-		{
-			cout << "#" << i << "u: "
-				<< acadoVariables.u[i * NU + 3] << " predicted:" << acadoVariables.x[i * NX + 9] << endl;
-		}
 		t2 = acado_toc( &t );
 		if ( status )
 		{
@@ -196,35 +191,35 @@ int main()
 			acadoVariables.x0[ i ] = acadoVariables.x[NX + i];
 
 		// Shift states and control and prepare for the next iteration
-		// cout << "---- states ----" << endl;
-		// for (i = 0; i < N + 1; ++i)
-		// {
-		// 	cout << "#" << i << ": "
-		// 		<< acadoVariables.x[i * NX + 0] << " "
-		// 		<< acadoVariables.x[i * NX + 1] << " "
-		// 		<< acadoVariables.x[i * NX + 2] << " "
-		// 		<< acadoVariables.x[i * NX + 3] << " "
-		// 		<< acadoVariables.x[i * NX + 4] << " "
-		// 		<< acadoVariables.x[i * NX + 5] << " "
-		// 		<< acadoVariables.x[i * NX + 6] << " "
-		// 		<< acadoVariables.x[i * NX + 7] << " "
-		// 		<< acadoVariables.x[i * NX + 8] << endl;
-		// }
+		cout << "---- states ----" << endl;
+		for (i = 0; i < N + 1; ++i)
+		{
+			cout << "#" << i << ": "
+				<< acadoVariables.x[i * NX + 0] << " "
+				<< acadoVariables.x[i * NX + 1] << " "
+				<< acadoVariables.x[i * NX + 2] << " "
+				<< acadoVariables.x[i * NX + 3] << " "
+				<< acadoVariables.x[i * NX + 4] << " "
+				<< acadoVariables.x[i * NX + 5] << " "
+				<< acadoVariables.x[i * NX + 6] << " "
+				<< acadoVariables.x[i * NX + 7] << " "
+				<< acadoVariables.x[i * NX + 8] << endl;
+		}
 		acado_shiftStates(2, 0, 0);
-		// cout << "---- states ----" << endl;
-		// for (i = 0; i < N + 1; ++i)
-		// {
-		// 	cout << "#" << i << ": "
-		// 		<< acadoVariables.x[i * NX + 0] << " "
-		// 		<< acadoVariables.x[i * NX + 1] << " "
-		// 		<< acadoVariables.x[i * NX + 2] << " "
-		// 		<< acadoVariables.x[i * NX + 3] << " "
-		// 		<< acadoVariables.x[i * NX + 4] << " "
-		// 		<< acadoVariables.x[i * NX + 5] << " "
-		// 		<< acadoVariables.x[i * NX + 6] << " "
-		// 		<< acadoVariables.x[i * NX + 7] << " "
-		// 		<< acadoVariables.x[i * NX + 8] << endl;
-		// }
+		cout << "---- states ----" << endl;
+		for (i = 0; i < N + 1; ++i)
+		{
+			cout << "#" << i << ": "
+				<< acadoVariables.x[i * NX + 0] << " "
+				<< acadoVariables.x[i * NX + 1] << " "
+				<< acadoVariables.x[i * NX + 2] << " "
+				<< acadoVariables.x[i * NX + 3] << " "
+				<< acadoVariables.x[i * NX + 4] << " "
+				<< acadoVariables.x[i * NX + 5] << " "
+				<< acadoVariables.x[i * NX + 6] << " "
+				<< acadoVariables.x[i * NX + 7] << " "
+				<< acadoVariables.x[i * NX + 8] << endl;
+		}
 		acado_shiftControls( 0 );
 
 		acado_tic( &t );

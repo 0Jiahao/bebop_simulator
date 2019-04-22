@@ -70,7 +70,7 @@ The **Integrated System** (linearized around stationary) can be written as
 Note that the <img src="img/airdrag_x.png"> and <img src="img/airdrag_y.png"> are the estimated coefficients of air drag force.
 
 #### MPC Target Point Tracking
-**bebop_mpc** is an example of target point tracking with a simple linear MPC controller.
+**bebop_mpc** is an example of target-point tracking with a simple linear MPC controller. The result shown below is initialized with a random position and end up with the target point `(5,4,3)`.
 <p align="center">
   <img src="img/linear_mpc_result.gif">
 </p>
