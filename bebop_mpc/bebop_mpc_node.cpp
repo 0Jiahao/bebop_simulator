@@ -41,10 +41,10 @@ class bebop_mpc
 bebop_mpc::bebop_mpc()
 {
     this->odom_sub = nh.subscribe("/bebop2/odometry", 1, &bebop_mpc::read_state,this);
-    this->ctrl_pub = nh.advertise<geometry_msgs::Twist>("/bebop2/cmd_vel",1);
-    this->ref.position.x = 5;
-    this->ref.position.y = 4;
-    this->ref.position.z = 3;
+    this->ctrl_pub = nh.advertise<geometry_msgs::Twist>("/bebop2_auto/cmd_vel",1);
+    this->ref.position.x = 0;
+    this->ref.position.y = 0;
+    this->ref.position.z = 1;
 }
 
 void bebop_mpc::read_state(const nav_msgs::Odometry& msg)
@@ -58,6 +58,7 @@ void bebop_mpc::read_state(const nav_msgs::Odometry& msg)
 		acadoVariables.y[ 0 ] = 0;
         acadoVariables.y[ 1 ] = 0; 
         acadoVariables.y[ 2 ] = 0; 
+        acadoVariables.y[ 2 ] = 0; 
 	}
 
     // set terminal reference
@@ -66,6 +67,7 @@ void bebop_mpc::read_state(const nav_msgs::Odometry& msg)
 	acadoVariables.yN[ 2 ] = this->ref.position.z; // z
     acadoVariables.yN[ 3 ] = 0; // y
 	acadoVariables.yN[ 4 ] = 0; // z
+    acadoVariables.yN[ 5 ] = 0; // z
 
     for (int i = 0; i < NX; ++i)
 	{
@@ -85,7 +87,7 @@ void bebop_mpc::read_state(const nav_msgs::Odometry& msg)
 
     // set online data - yaw angle
     // acadoVariables.od[0] =  yaw;
-
+    cout << "ground truth: " << yaw << " predict: " << acadoVariables.x[ 21] << endl;
     // convert true RPY to angles (assuming yaw is 0)
     double roll0, pitch0;
     roll0 =  pitch * sin(yaw) + roll * cos(yaw);
@@ -101,6 +103,9 @@ void bebop_mpc::read_state(const nav_msgs::Odometry& msg)
     acadoVariables.x0[ 6 ] = acadoVariables.x[ 6 ];       // z2
     acadoVariables.x0[ 7 ] = roll0;   // psi
     acadoVariables.x0[ 8 ] = pitch0; // theta
+    acadoVariables.x0[ 9 ] = yaw; // yaw
+    acadoVariables.x0[ 10] = acadoVariables.x[ 10];
+    acadoVariables.x0[ 11] = acadoVariables.x[ 11];
 
     // observer
 
@@ -116,6 +121,7 @@ void bebop_mpc::read_state(const nav_msgs::Odometry& msg)
     cmd.linear.x = pitchd / (M_PI / 18); // pitch
     cmd.linear.y = rolld / (M_PI / 18); // roll
     cmd.linear.z = acadoVariables.u[2]; // vertical velocity
+    cmd.angular.z = acadoVariables.u[3] / (M_PI / 2); // yawrate
     ctrl_pub.publish(cmd);
 
     // shift states
