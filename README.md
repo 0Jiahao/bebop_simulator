@@ -3,7 +3,6 @@ A simple bebop simulator for high level controller development. It has been test
 #### Prerequisite
 - [Sphinx](https://developer.parrot.com/docs/sphinx/whatissphinx.html) *Note: you might need to disable the front camera and change the virtual ethernet.*
 - [bebop_autonomy](https://bebop-autonomy.readthedocs.io/en/latest/) *Note: remember to change the IP address.*
-- [Gazebo](http://gazebosim.org/)
 - [nav_msgs](http://wiki.ros.org/nav_msgs)
 
 #### Installation
