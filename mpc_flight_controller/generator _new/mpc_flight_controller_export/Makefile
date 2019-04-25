@@ -44,7 +44,8 @@ OBJECTS = \
 	acado_qpoases_interface.o \
 	acado_integrator.o \
 	acado_solver.o \
-	acado_auxiliary_functions.o
+	acado_auxiliary_functions.o \
+	acado_hessian_regularization.o
 
 .PHONY: all
 all: libacado_exported_rti.a test

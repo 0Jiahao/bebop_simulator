@@ -34,7 +34,7 @@ int main( )
 	
 	IntermediateState   vx_b  ;  // velocity x in body frame
 	IntermediateState   vy_b  ;  // velocity y in body frame
-
+	
 	Control             psid  ;  // command roll
     Control             thetad;  // command theta
     Control             vzd   ;  // command vertical velocity
@@ -50,7 +50,7 @@ int main( )
 	f << next(  y  ) == y + 0.066222649190692 * vy + 0.009389533529518 * psi + 0.001486468522497 * psid;
     f << next(  z  ) == z + 1.067248658575422 * z1 - 0.100493327248945 * z2 + 0.001919730358230 * vzd;
 	f << next(  vx ) == 0.987808262200150 * vx + 0.261743128622771 * theta + 0.12882065558 * thetad;
-    f << next(  vy ) == 0.986709114307428 * vy + 0.261415513308866 * psi + 0.12893425756 * psid;
+    f << next(  vy ) == 0.986709114307428 * vy - 0.261415513308866 * psi - 0.12893425756 * psid;
 	f << next(  z1 ) == 0.814844314440081 * z1 - 0.127542464394678 * z2 + 0.003479876523758 * vzd;
     f << next(  z2 ) == 0.487262230640373 * z1 + 0.637135147383496 * z2 - 0.035522579058221 * vzd;
 	f << next( psi ) == 0.637504888761587 * psi + 0.368558257859032 * psid;
@@ -61,17 +61,19 @@ int main( )
 
 	vx_b = vx * cos(phi) + vy * sin(phi);
 	vy_b = - vx * sin(phi) + vy * cos(phi);
+	
 
     // Reference functions and weighting matrices:
 	Function h, hN;
 	h << psid << thetad << vzd << phird;
-	hN << x << y << z << vx << vy << phi;// << phi;
+	hN << x << y << z; // << vx << vy << phi;
 
 	DMatrix W = eye<double>(h.getDim());
 	DMatrix WN = eye<double>(hN.getDim());
-	WN(3,3) = 100;
-	WN(4,4) = 100;
-	WN(5,5) = 1000;
+	WN(2,2) = 10;
+	// WN(3,3) = 100;
+	// WN(4,4) = 100;
+	// WN(5,5) = 1000;
 	//
 	// Optimal Control Problem
 	//
@@ -93,6 +95,7 @@ int main( )
 	ocp.subjectTo( -pi / 36 <= thetad <= pi / 36 ); // deg
     ocp.subjectTo( -1 <= vzd <= 1 ); 				// deg
 	ocp.subjectTo( -pi / 2 <= phird <= pi / 2 ); 	// 90 deg/s
+	ocp.subjectTo( 0 <= vx_b );
 
 	// Export the code:
 	OCPexport mpc( ocp );

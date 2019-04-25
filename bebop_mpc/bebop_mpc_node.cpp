@@ -83,16 +83,18 @@ void bebop_mpc::read_state(const nav_msgs::Odometry& msg)
     tf::quaternionMsgToTF(msg.pose.pose.orientation, quat);
     double roll, pitch, yaw;
     tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);
-    roll = -roll;
+    
+    // roll = -roll;
 
     // set online data - yaw angle
     // acadoVariables.od[0] =  yaw;
-    cout << "ground truth: " << yaw << " predict: " << acadoVariables.x[ 21] << endl;
+    // cout << "ground truth: " << yaw << " predict: " << acadoVariables.x[ 21] << endl;
     // convert true RPY to angles (assuming yaw is 0)
     double roll0, pitch0;
-    roll0 =  pitch * sin(yaw) + roll * cos(yaw);
-    pitch0 = pitch * cos(yaw) - roll * sin(yaw);
-    
+    roll0 = -pitch * sin(yaw) + roll * cos(yaw);
+    pitch0 = pitch * cos(yaw) + roll * sin(yaw);
+    // cout << "roll0: " << roll0 << " pitch0: " << pitch0 << " yaw: " << yaw << endl;
+
     // current feedback
     acadoVariables.x0[ 0 ] = msg.pose.pose.position.x;    // x
     acadoVariables.x0[ 1 ] = msg.pose.pose.position.y;    // y
@@ -116,10 +118,11 @@ void bebop_mpc::read_state(const nav_msgs::Odometry& msg)
     // publish command
     geometry_msgs::Twist cmd;
     double rolld, pitchd;
-    rolld = -acadoVariables.u[1] * sin(yaw) + acadoVariables.u[0] * cos(yaw);
-    pitchd = acadoVariables.u[1] * cos(yaw) + acadoVariables.u[0] * sin(yaw);
+    rolld =  acadoVariables.u[1] * sin(yaw) + acadoVariables.u[0] * cos(yaw);
+    pitchd = acadoVariables.u[1] * cos(yaw) - acadoVariables.u[0] * sin(yaw);
+    cout << "rolld0: " << acadoVariables.u[0] << " pitchd0: " << acadoVariables.u[1] << endl;
     cmd.linear.x = pitchd / (M_PI / 18); // pitch
-    cmd.linear.y = rolld / (M_PI / 18); // roll
+    cmd.linear.y = -rolld / (M_PI / 18); // roll(positive move to left in bebop autonomy)
     cmd.linear.z = acadoVariables.u[2]; // vertical velocity
     cmd.angular.z = acadoVariables.u[3] / (M_PI / 2); // yawrate
     ctrl_pub.publish(cmd);
