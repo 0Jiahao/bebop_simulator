@@ -2,6 +2,7 @@
 #include "std_msgs/Empty.h"
 #include <sensor_msgs/Joy.h>
 #include <geometry_msgs/Twist.h>
+#include <geometry_msgs/Twist.h>
 
 class ground_controller
 {
@@ -27,16 +28,16 @@ class ground_controller
 
     void from_joystick(const sensor_msgs::Joy& msg)
     {
-        // axes 0 -> yawrate(left)
-        // axes 1 -> vertical velocity(up)
-        // axes 3 -> roll(left)
-        // axes 4 -> pitch(forward)
-        // buttons 0 -> A
-        // buttons 1 -> B
-        // buttons 2 -> X
-        // buttons 3 -> Y
-        // buttons 6 -> back
-        // buttons 7 -> start
+        // axes 0(0) -> yawrate(left)
+        // axes 1(1) -> vertical velocity(up) 
+        // axes 3(2) -> roll(left)             
+        // axes 4(3) -> pitch(forward)         
+        // buttons 0(1) -> A
+        // buttons 1(2) -> B
+        // buttons 2(0) -> X
+        // buttons 3(3) -> Y
+        // buttons 6(8) -> back
+        // buttons 7(9) -> start
 
         ROS_INFO_STREAM("AUTO MODE: " << this->auto_navigation);
 
@@ -44,15 +45,15 @@ class ground_controller
         if(!this->auto_navigation)
         {
             geometry_msgs::Twist cmd;
-            cmd.linear.x = msg.axes[4];
-            cmd.linear.y = msg.axes[3];
+            cmd.linear.x = msg.axes[3];
+            cmd.linear.y = msg.axes[2];
             cmd.linear.z = msg.axes[1];
             cmd.angular.z = msg.axes[0];
             cmd_pub.publish(cmd);
         }
 
         // take off
-        if(msg.buttons[0])
+        if(msg.buttons[1])
         {
             // switch to manual control after takeoff
             this->auto_navigation = false;
@@ -61,20 +62,20 @@ class ground_controller
         }
 
         // landing
-        if(msg.buttons[1])
+        if(msg.buttons[2])
         {
             std_msgs::Empty landing_msg;
             landing_pub.publish(landing_msg);
         }
 
         // enable auto-navigation
-        if(msg.buttons[7])
+        if(msg.buttons[9])
         {
             this->auto_navigation = true;
         }
 
         // disable auto-navigation
-        if(msg.buttons[6])
+        if(msg.buttons[8])
         {
             this->auto_navigation = false;
         }

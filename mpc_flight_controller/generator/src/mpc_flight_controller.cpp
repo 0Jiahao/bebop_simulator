@@ -66,14 +66,14 @@ int main( )
     // Reference functions and weighting matrices:
 	Function h, hN;
 	h << psid << thetad << vzd << phird;
-	hN << x << y << z; // << vx << vy << phi;
+	hN << x << y << z << vx << vy << phi;
 
 	DMatrix W = eye<double>(h.getDim());
 	DMatrix WN = eye<double>(hN.getDim());
 	WN(2,2) = 10;
-	// WN(3,3) = 100;
-	// WN(4,4) = 100;
-	// WN(5,5) = 1000;
+	WN(3,3) = 100;
+	WN(4,4) = 100;
+	WN(5,5) = 1000;
 	//
 	// Optimal Control Problem
 	//
@@ -95,7 +95,7 @@ int main( )
 	ocp.subjectTo( -pi / 36 <= thetad <= pi / 36 ); // deg
     ocp.subjectTo( -1 <= vzd <= 1 ); 				// deg
 	ocp.subjectTo( -pi / 2 <= phird <= pi / 2 ); 	// 90 deg/s
-	ocp.subjectTo( 0 <= vx_b );
+	// ocp.subjectTo( 0 <= vx_b );
 
 	// Export the code:
 	OCPexport mpc( ocp );

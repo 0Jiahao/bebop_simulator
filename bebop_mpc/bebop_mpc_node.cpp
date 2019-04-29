@@ -42,9 +42,10 @@ bebop_mpc::bebop_mpc()
 {
     this->odom_sub = nh.subscribe("/bebop2/odometry", 1, &bebop_mpc::read_state,this);
     this->ctrl_pub = nh.advertise<geometry_msgs::Twist>("/bebop2_auto/cmd_vel",1);
-    this->ref.position.x = 0;
+    this->ref.position.x = 3.25;
     this->ref.position.y = 0;
-    this->ref.position.z = 1;
+    this->ref.position.z = 1.5;
+    // this->ref.orientation.z = M_PI; //reference yaw
 }
 
 void bebop_mpc::read_state(const nav_msgs::Odometry& msg)
@@ -52,13 +53,22 @@ void bebop_mpc::read_state(const nav_msgs::Odometry& msg)
     // start clock
     clock_t t_start = clock();
 
+    // convert quaternion to true roll pitch yaw
+    tf::Quaternion quat;
+    tf::quaternionMsgToTF(msg.pose.pose.orientation, quat);
+    double roll, pitch, yaw;
+    tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);
+
+    // // differential yaw
+    // double dyaw = (this->ref.orientation.z - yaw)
+
     // set reference
     for (int i = 0; i < NY * N; ++i)
 	{
 		acadoVariables.y[ 0 ] = 0;
         acadoVariables.y[ 1 ] = 0; 
         acadoVariables.y[ 2 ] = 0; 
-        acadoVariables.y[ 2 ] = 0; 
+        acadoVariables.y[ 3 ] = 0; 
 	}
 
     // set terminal reference
@@ -77,18 +87,7 @@ void bebop_mpc::read_state(const nav_msgs::Odometry& msg)
     // cout << acadoVariables.od[0] << endl;
 
     acado_preparationStep();
-
-    // convert quaternion to true roll pitch yaw
-    tf::Quaternion quat;
-    tf::quaternionMsgToTF(msg.pose.pose.orientation, quat);
-    double roll, pitch, yaw;
-    tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);
     
-    // roll = -roll;
-
-    // set online data - yaw angle
-    // acadoVariables.od[0] =  yaw;
-    // cout << "ground truth: " << yaw << " predict: " << acadoVariables.x[ 21] << endl;
     // convert true RPY to angles (assuming yaw is 0)
     double roll0, pitch0;
     roll0 = -pitch * sin(yaw) + roll * cos(yaw);
@@ -114,18 +113,21 @@ void bebop_mpc::read_state(const nav_msgs::Odometry& msg)
     // calculate
     int status;
     status = acado_feedbackStep( );
-
+    ROS_INFO_STREAM("SOLVER STATUS: " << status);
     // publish command
-    geometry_msgs::Twist cmd;
-    double rolld, pitchd;
-    rolld =  acadoVariables.u[1] * sin(yaw) + acadoVariables.u[0] * cos(yaw);
-    pitchd = acadoVariables.u[1] * cos(yaw) - acadoVariables.u[0] * sin(yaw);
-    cout << "rolld0: " << acadoVariables.u[0] << " pitchd0: " << acadoVariables.u[1] << endl;
-    cmd.linear.x = pitchd / (M_PI / 18); // pitch
-    cmd.linear.y = -rolld / (M_PI / 18); // roll(positive move to left in bebop autonomy)
-    cmd.linear.z = acadoVariables.u[2]; // vertical velocity
-    cmd.angular.z = acadoVariables.u[3] / (M_PI / 2); // yawrate
-    ctrl_pub.publish(cmd);
+    if(status == 0)
+    {
+        geometry_msgs::Twist cmd;
+        double rolld, pitchd;
+        rolld =  acadoVariables.u[1] * sin(yaw) + acadoVariables.u[0] * cos(yaw);
+        pitchd = acadoVariables.u[1] * cos(yaw) - acadoVariables.u[0] * sin(yaw);
+        cmd.linear.x = pitchd / (M_PI / 18); // pitch
+        cmd.linear.y = -rolld / (M_PI / 18); // roll(positive move to left in bebop autonomy)
+        cmd.linear.z = acadoVariables.u[2]; // vertical velocity
+        cmd.angular.z = acadoVariables.u[3] / (M_PI / 2); // yawrate
+        
+        ctrl_pub.publish(cmd);
+    }
 
     // shift states
     acado_shiftStates(0, 0, 0);
