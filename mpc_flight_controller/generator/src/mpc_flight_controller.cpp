@@ -18,6 +18,10 @@ int main( )
 {
     USING_NAMESPACE_ACADO
 
+	// prediction horizon and sampling time
+	const float TEnd = 2;
+    const double Ts = 1 / 15.0;
+
     // Variables:
 	DifferentialState   x     ;  // position x
 	DifferentialState   y     ;  // position y
@@ -31,19 +35,22 @@ int main( )
 	DifferentialState   phi   ;  // angle yaw
 	DifferentialState   y1    ;  // yaw state y1
 	DifferentialState   y2    ;  // yaw state y2
+	DifferentialState   dummy    ;  // yaw state y2
 	
-	IntermediateState   vx_b  ;  // velocity x in body frame
-	IntermediateState   vy_b  ;  // velocity y in body frame
-	
+	// Control command
 	Control             psid  ;  // command roll
     Control             thetad;  // command theta
     Control             vzd   ;  // command vertical velocity
 	Control   			phird ;  // command yawrate
+	// Slack variables
+	Control 			sv_obs;  // slack variable for obstacle 
+
+	OnlineData 			obs_x ;	 // obstacle's x
+	OnlineData 			obs_y ;	 // obstacle's y
 
     const float     pi = 3.14159265359; // pi
 
     // Model equations:
-    const double Ts = 1 / 15.0;
 	DiscretizedDifferentialEquation f(Ts); 
 
 	f << next(  x  ) == x + 0.066259444564402 * vx + 0.009397246901320 * theta + 0.001484851818313 * thetad;
@@ -58,44 +65,42 @@ int main( )
 	f << next( phi ) == phi + 0.580946305515318 * y1 - 0.002380060951283 * y2;
 	f << next(  y1 ) == 0.936465349398944 * y1 - 0.046804990378125 * y2 + 5.125900721967114e-04 * phird;
 	f << next(  y2 ) == 0.236914366025587 * y1 + 0.820329015243120 * y2 - 0.013647220727940 * phird;
-
-	vx_b = vx * cos(phi) + vy * sin(phi);
-	vy_b = - vx * sin(phi) + vy * cos(phi);
+	f << next(  dummy ) == sv_obs;
 	
 
     // Reference functions and weighting matrices:
 	Function h, hN;
-	h << psid << thetad << vzd << phird;
+	h << psid << thetad << vzd << phird << sv_obs;
 	hN << x << y << z << vx << vy << phi;
 
 	DMatrix W = eye<double>(h.getDim());
+	// W(4,4) = 1000;
 	DMatrix WN = eye<double>(hN.getDim());
-	WN(2,2) = 10;
-	WN(3,3) = 100;
-	WN(4,4) = 100;
-	WN(5,5) = 1000;
+	WN(3,3) = 10;
+	WN(4,4) = 10;
+	WN(5,5) = 100;
 	//
 	// Optimal Control Problem
 	//
-	const float TEnd = 2.5;
 
 	OCP ocp( 0.0,  TEnd , TEnd / Ts);
+
+	Expression d2_obs = (x - obs_x) * (x - obs_x) + (y - obs_y) * (y - obs_y);
+
+	ocp.setNOD(2);
 
 	ocp.minimizeLSQ(W, h);
 	ocp.minimizeLSQEndTerm(WN, hN);
 
 	ocp.subjectTo( f );
 
-	// ocp.setNOD(1);	// set number of online data
-
-	// ocp.subjectTo( -1 <= vx <= 1 ); 				// m/s
-	// ocp.subjectTo( -1 <= vy <= 1 ); 				// m/s
-	// ocp.subjectTo( -0.1 <= vx_b ); 					// moving forward
 	ocp.subjectTo( -pi / 36 <= psid <= pi / 36 ); 	// deg
 	ocp.subjectTo( -pi / 36 <= thetad <= pi / 36 ); // deg
     ocp.subjectTo( -1 <= vzd <= 1 ); 				// deg
 	ocp.subjectTo( -pi / 2 <= phird <= pi / 2 ); 	// 90 deg/s
-	// ocp.subjectTo( 0 <= vx_b );
+	ocp.subjectTo( 2 <= d2_obs + sv_obs );
+	ocp.subjectTo( 0.25 <= d2_obs);
+	ocp.subjectTo( 0 <= sv_obs);
 
 	// Export the code:
 	OCPexport mpc( ocp );
@@ -108,11 +113,11 @@ int main( )
     mpc.set( HOTSTART_QP, YES);
     mpc.set( LEVENBERG_MARQUARDT, 1e-10);
     mpc.set( LINEAR_ALGEBRA_SOLVER, GAUSS_LU);
-    mpc.set( IMPLICIT_INTEGRATOR_NUM_ITS, 2);
+    // mpc.set( IMPLICIT_INTEGRATOR_NUM_ITS, 2);
 	mpc.set( GENERATE_TEST_FILE, BT_TRUE);
     // mpc.set( CG_USE_OPENMP, NO);
-    // mpc.set( CG_HARDCODE_CONSTRAINT_VALUES, NO);
-    // mpc.set( CG_USE_VARIABLE_WEIGHTING_MATRIX, NO);
+    mpc.set( CG_HARDCODE_CONSTRAINT_VALUES, NO);
+    mpc.set( CG_USE_VARIABLE_WEIGHTING_MATRIX, NO);
 
 	if (mpc.exportCode( "mpc_flight_controller_export" ) != SUCCESSFUL_RETURN)
 		exit( EXIT_FAILURE );
