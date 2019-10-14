@@ -100,3 +100,21 @@ datatst = iddata(y,u,Ts);
 sys.K = [0];
 compare(datatst,sys);
 sys
+[y0,fit,x0] = compare(datatst,sys);
+figure()
+subplot(2,1,1)
+plot(0:Ts:Ts * (length(u)-1),u);
+xlim([0,9.5])
+title('');
+ylabel('Command [rad]');
+xlabel('Time [sec]');
+subplot(2,1,2)
+plot(0:Ts:Ts * (length(u)-1),y); hold on;
+plot(0:Ts:Ts * (length(u)-1),y0.OutputData);
+
+xlim([0,9.5]);
+title('');
+ylabel('Roll [rad]');
+xlabel('Time [sec]');
+legend off;
+sys;

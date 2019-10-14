@@ -89,16 +89,16 @@ void bebop_mpc::solve(const nav_msgs::Odometry& msg)
     ros::Duration diffTime = ros::Time::now() - startTime;
 	double dt = diffTime.toSec();
     double obs_x = 0;
-    double obs_y = 0; //1 * sin(0.5 * dt);
+    double obs_y = 1 * sin(0.5 * dt);
     double obs_vx = 0;
-    double obs_vy = 0;//0.5 * cos(0.5 * dt);
+    double obs_vy = 0.5 * cos(0.5 * dt);
 #if SHOW_PATH
     visualization_msgs::MarkerArray mks;
 #endif
     for (int i = 0; i < N; i++)
 	{
-        acadoVariables.od[ i * NOD + 0 ] = 0;
-        acadoVariables.od[ i * NOD + 1 ] = obs_y + i * Ts * obs_vy;
+        acadoVariables.od[ i * NOD + 0 ] = obs_x;
+        acadoVariables.od[ i * NOD + 1 ] = obs_y;
         
 #if SHOW_PATH
         visualization_msgs::Marker mk;
@@ -124,7 +124,7 @@ void bebop_mpc::solve(const nav_msgs::Odometry& msg)
 	}
 
 #if SHOW_PATH
-    obs_pub.publish(mks);
+    // obs_pub.publish(mks);
 #endif
 
     // set reference

@@ -38,10 +38,10 @@ for i = 1:numel(odom)
         end
     end
 end
-y = smooth(y,5);
+y = smoothdata(y,50);
 Ts = mean(t(2:end) - t(1:end-1));
 datatrn = iddata(y,u,Ts);
-sys = n4sid(datatrn,2,'InputDelay',3);
+sys = n4sid(datatrn,2,'InputDelay',2);
 % C = sys.C;
 % sys.C = (C * sys.A - C) / Ts * m;
 % sys.D = C * sys.B / Ts * m;
@@ -83,12 +83,12 @@ for i = 1:numel(odom)
     end
 end
 % y = gradient(y) / Ts * m;
-y = smooth(y,5);
+y = smoothdata(y,50);
 datatst = iddata(y,u,Ts);
 compare(datatst,sys);
-close all;
-sysc = d2c(sys);
-[b,a] = ss2tf(sysc.A,sysc.B,sysc.C,sysc.D);
-bd = [b(2),b(3),0];
-[A,B,C,D] = tf2ss(bd,a);
-sysc = ss(A,B,C,D);
+% close all;
+% sysc = d2c(sys);
+% [b,a] = ss2tf(sysc.A,sysc.B,sysc.C,sysc.D);
+% bd = [b(2),b(3),0];
+% [A,B,C,D] = tf2ss(bd,a);
+% sysc = ss(A,B,C,D);

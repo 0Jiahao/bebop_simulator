@@ -44,11 +44,11 @@ u = u(2:end);
 y = smooth(y,10);
 y = y - y(1);
 datatrn = iddata(y,u,Ts);
-sys = n4sid(datatrn,2,'InputDelay',0);
+sys = n4sid(datatrn,1,'InputDelay',0);
 % C = sys.C;
 % sys.C = (C * sys.A - C) / Ts * m;
 % sys.D = C * sys.B / Ts * m;
-sys.K = [0;0];
+sys.K = 0;
 %% testing 
 file_name = "monster_vert_trn";
 bag = rosbag([file_name + ".bag"]);
