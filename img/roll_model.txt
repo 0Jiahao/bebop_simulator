@@ -1,1 +1,0 @@
-\dot{\theta}=A_{\theta}\theta+B_{\theta}\theta_d

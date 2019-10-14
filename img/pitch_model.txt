@@ -1,1 +1,0 @@
-\dot{\psi}=A_{\psi}\psi+B_{\psi}\psi_d
